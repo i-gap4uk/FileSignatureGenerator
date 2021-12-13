@@ -8,40 +8,35 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
-#include "utils/include/types.h"
+#include "utils/include/common_types.h"
 
-namespace file_manager
-{
+namespace file_manager {
 
 /**
- * @brief Class FileManager reads a data from a file and writes a hash into
- * other one file.
+ * @brief Class FileManager reads a data from a file and writes a hash into another one file.
  */
-class FileManager
-{
-  public:
-    virtual bool Init() = 0;
+class FileManager {
+ public:
+  virtual bool Init() = 0;
 
-    /**
-     * @brief Reads data from a file by data block size.
-     *
-     * @param data_block A data block that will be filled by data.
-     * @return Result code as the result of operation.
-     */
-    virtual types::Result
-    ReadDataBlock(types::file_manager::DataContainer & data_block) = 0;
+  /**
+   * @brief Reads data from a file by data block size.
+   * @param data_block A data block that will be filled by data.
+   * @return Result code as the result of operation.
+   */
+  virtual common_types::Result ReadDataBlock(common_types::DataContainer& data_block) = 0;
 
-    /**
-     * @brief Writes hash into a file.
-     *
-     * @param hash_string Hash that should be written into the file.
-     * @return TRUE if hash has been written successfully, otherwise FALSE.
-     */
-    virtual bool WriteHashToFile(const std::string & hash_string) = 0;
+  /**
+   * @brief Writes hash into a file.
+   * @param hash_string Hash that should be written into the file.
+   * @return TRUE if hash has been written successfully, otherwise FALSE.
+   */
+  virtual bool WriteHashToFile(const std::string& hash_string) = 0;
 
-    virtual ~FileManager() {}
+  virtual ~FileManager() {}
 };
-} // namespace file_manager
+}  // namespace file_manager
 
-#endif // INCLUDE_FILE_MANGER_H
+#endif  // INCLUDE_FILE_MANGER_H

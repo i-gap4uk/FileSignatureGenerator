@@ -29,11 +29,11 @@ int main(int args, const char * argv[])
     auto start = std::chrono::high_resolution_clock::now();
 
     std::string input_file;
-    std::string signature_file = constants::DEFAULT_SIGNATURE_FILE;
-    std::size_t block_size = constants::DEFAULT_BLOCK_SIZE;
-    std::size_t threads_count = constants::DEFAULT_THREADS_COUNT;
+    std::string signature_file{};
+    std::size_t block_size{0};
+    std::size_t threads_count{0};
 
-    types::Result result_code = types::Result::ERROR;
+    common_types::Result result_code = common_types::Result::ERROR;
     switch (args)
     {
         case 2:
@@ -81,7 +81,7 @@ int main(int args, const char * argv[])
 
     result_code = file_sign_generator.Run();
 
-    if (types::Result::ERROR == result_code)
+    if (common_types::Result::ERROR == result_code)
     {
         std::cerr << "Signature generation is failed!\n";
     }

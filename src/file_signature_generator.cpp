@@ -16,13 +16,13 @@ FileSignatureGenerator::FileSignatureGenerator(
 
 FileSignatureGenerator::~FileSignatureGenerator() {}
 
-types::Result FileSignatureGenerator::Run()
+common_types::Result FileSignatureGenerator::Run()
 {
     const bool init_result = file_signature_handler_.Init();
     if (!init_result)
     {
         std::cerr << "FileSignatureHandler initialization is failed!\n";
-        return types::Result::ERROR;
+        return common_types::Result::ERROR;
     }
 
     return file_signature_handler_.GenerateFileSignature();
