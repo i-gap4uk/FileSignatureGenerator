@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "utils/include/common_types.h"
+#include "utils/include/common.h"
 
 namespace file_manager {
 
@@ -26,7 +26,7 @@ class FileManager {
    * @param data_block A data block that will be filled by data.
    * @return Result code as the result of operation.
    */
-  virtual common_types::Result ReadDataBlock(common_types::DataContainer& data_block) = 0;
+  virtual common::Result ReadDataBlock(common::DataContainer& data_block) = 0;
 
   /**
    * @brief Writes hash into a file.

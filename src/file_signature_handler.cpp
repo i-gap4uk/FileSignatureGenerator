@@ -4,12 +4,10 @@
 
 #include "include/file_manager_impl.h"
 #include "include/resource_manager_impl.h"
+#include "utils/include/constants.h"
 #include "utils/include/hash_generator.h"
 
 namespace {
-const std::string DEFAULT_SIGNATURE_FILE = "file_signature.txt";
-const std::size_t DEFAULT_BLOCK_SIZE = 1048576;  // 1Mb
-const std::size_t DEFAULT_THREADS_COUNT = 1;
 
 class DataBlockIDComparator {
  public:
@@ -44,41 +42,39 @@ class HashBlockIDComparator {
 
 namespace file_signature_handler {
 
-FileSignatureHandler::FileSignatureHandler(
-    const std::string& data_file_path,
-    const std::string& file_signature_path = DEFAULT_SIGNATURE_FILE,
-    const std::size_t block_size = DEFAULT_BLOCK_SIZE,
-    const std::size_t threads_count = DEFAULT_THREADS_COUNT)
-    : block_size_(block_size),
-      file_manager_(
-          std::make_shared<file_manager::FileManagerImpl>(file_signature_path, data_file_path)),
+FileSignatureHandler::FileSignatureHandler(const common::InitializeParameters& init_params)
+    : block_size_(common::InitializeParameters::kInvalidSize == init_params.block_size
+                      ? constants::DEFAULT_BLOCK_SIZE
+                      : init_params.block_size),
+      file_manager_(std::make_shared<file_manager::FileManagerImpl>(
+          init_params.source_file_path, init_params.signature_file_path)),
       resource_manager_(std::make_shared<resource_manager::ResourceManagerImpl>()),
       data_reading_is_completed_(false),
       hash_generating_is_completed_(false),
       end_of_data_(false),
       end_of_hashes_(false),
       data_is_written_(false),
-      max_thread_count_(threads_count) {}
+      max_thread_count_(constants::DEFAULT_THREADS_COUNT) {}
 
-common_types::Result FileSignatureHandler::GenerateFileSignature() {
+common::Result FileSignatureHandler::GenerateFileSignature() {
   if (max_thread_count_ < 3) {
-    common_types::DataContainer data_container(block_size_);
+    common::DataContainer data_container(block_size_);
     while (!end_of_data_) {
       auto read_result = file_manager_->ReadDataBlock(data_container);
 
-      common_types::HashContainer hash_container;
+      common::HashContainer hash_container;
       if (!data_container.data.empty()) {
         hash_generator_.GenerateHash(data_container.data, hash_container);
       } else {
-        return common_types::Result::ERROR;
+        return common::Result::ERROR;
       }
 
       file_manager_->WriteHashToFile(hash_container.hash);
-      if (common_types::Result::END_OF_FILE == read_result) {
+      if (common::Result::END_OF_FILE == read_result) {
         end_of_data_ = true;
       }
     }
-    return common_types::Result::SIGN_IS_GENERATED;
+    return common::Result::SIGN_IS_GENERATED;
   }
 
   RunThreads();
@@ -88,7 +84,7 @@ common_types::Result FileSignatureHandler::GenerateFileSignature() {
   };
   signature_is_written_cv_.wait(lock, signature_handler);
   std::cout << "Generating is completed\n";
-  return common_types::Result::SIGN_IS_GENERATED;
+  return common::Result::SIGN_IS_GENERATED;
 }
 
 bool FileSignatureHandler::Init() {
@@ -102,17 +98,11 @@ bool FileSignatureHandler::Init() {
 }
 
 void FileSignatureHandler::InitThreads() {
-  if (DEFAULT_THREADS_COUNT == max_thread_count_) {
-    max_thread_count_ = std::thread::hardware_concurrency() - 1;
-  }
-  if (max_thread_count_ < 3) {
-    // In this case it makes no sense to run the program in multithreading mode
-    return;
-  }
+  // Book one thread for writing and leave another one for systems needs
+  max_thread_count_ = std::thread::hardware_concurrency() - 2;
 
-  // The program uses only one thread for writing hashes.
-  std::size_t reading_threads = (max_thread_count_ - 1) / 2;
-  std::size_t hash_generating_threads = max_thread_count_ - 1 - reading_threads;
+  std::size_t reading_threads = max_thread_count_ / 2;
+  std::size_t hash_generating_threads = max_thread_count_ - reading_threads;
   for (std::size_t i = 0; i < reading_threads; ++i) {
     reading_threads_.emplace_back(&FileSignatureHandler::ReadData, this);
   }
@@ -147,20 +137,20 @@ void FileSignatureHandler::ReadData() {
       return;
     }
 
-    common_types::DataContainer data_container(block_size_);
+    common::DataContainer data_container(block_size_);
 
-    const common_types::Result read_result = ReadDataBlock(data_container);
+    const common::Result read_result = ReadDataBlock(data_container);
 
     switch (read_result) {
-      case common_types::Result::ERROR: {
+      case common::Result::ERROR: {
         return;
       }
-      case common_types::Result::END_OF_FILE: {
+      case common::Result::END_OF_FILE: {
         data_reading_is_completed_ = true;
         std::cout << "The last data block [" << data_container.id
                   << "] has been read succssesfully\n";
       } break;
-      case common_types::Result::DATA_IS_READ: {
+      case common::Result::DATA_IS_READ: {
         std::cout << "Data block [" << data_container.id << "] has been read succssesfully\n";
       } break;
       default:
@@ -182,11 +172,11 @@ void FileSignatureHandler::GenerateHash() {
 
     WaitAvailableDataBlock();
 
-    common_types::DataContainer data_container;
+    common::DataContainer data_container;
     const bool result = GetDataBlock(data_container);
 
     if (result) {
-      common_types::HashContainer hash_container;
+      common::HashContainer hash_container;
       hash_generator_.GenerateHash(data_container.data, hash_container);
       std::cout << "Hash [" << hash_container.id << "] is generated successfully" << std::endl;
       PutHash(hash_container);
@@ -211,7 +201,7 @@ void FileSignatureHandler::WriteHash() {
 
     WaitAvailableHash();
 
-    common_types::HashContainer hash_container;
+    common::HashContainer hash_container;
     bool hasah_getting_result = GetHash(hash_container);
 
     if (hasah_getting_result) {
@@ -232,15 +222,14 @@ void FileSignatureHandler::WriteHash() {
   }
 }
 
-common_types::Result FileSignatureHandler::ReadDataBlock(
-    common_types::DataContainer& data_container) {
-  common_types::Result result = common_types::Result::ERROR;
+common::Result FileSignatureHandler::ReadDataBlock(common::DataContainer& data_container) {
+  common::Result result = common::Result::ERROR;
 
   result = file_manager_->ReadDataBlock(data_container);
   return result;
 }
 
-void FileSignatureHandler::PutDataBlock(const common_types::DataContainer& data_container) {
+void FileSignatureHandler::PutDataBlock(const common::DataContainer& data_container) {
   if (data_container.id != (resource_manager_->GetLastBlockId() + 1)) {
     DataBlockIDComparator dbc(data_container.id, *resource_manager_);
     std::unique_lock<std::mutex> lock(push_data_mutex_);
@@ -270,7 +259,7 @@ void FileSignatureHandler::WaitAvailableHash() {
   }
 }
 
-bool FileSignatureHandler::GetHash(common_types::HashContainer& hash_container) {
+bool FileSignatureHandler::GetHash(common::HashContainer& hash_container) {
   const bool result = resource_manager_->GetHash(hash_container);
   if (hash_generating_is_completed_ && resource_manager_->IsHashStorageEmpty()) {
     end_of_hashes_ = true;
@@ -279,7 +268,7 @@ bool FileSignatureHandler::GetHash(common_types::HashContainer& hash_container) 
   return result;
 }
 
-bool FileSignatureHandler::GetDataBlock(common_types::DataContainer& data_container) {
+bool FileSignatureHandler::GetDataBlock(common::DataContainer& data_container) {
   const bool result = resource_manager_->GetDataBlock(data_container);
   if (resource_manager_->IsDataStorageEmpty() && data_reading_is_completed_) {
     end_of_data_ = true;
@@ -287,8 +276,7 @@ bool FileSignatureHandler::GetDataBlock(common_types::DataContainer& data_contai
   return result;
 }
 
-void FileSignatureHandler::PutHash(
-    const common_types::HashContainer& hash_container) {
+void FileSignatureHandler::PutHash(const common::HashContainer& hash_container) {
   if (hash_container.id != (resource_manager_->GetLastHashId() + 1)) {
     std::unique_lock<std::mutex> hash_lock(push_hash_mutex_);
     HashBlockIDComparator hb_c(hash_container.id, *resource_manager_);

@@ -40,11 +40,11 @@ bool FileManagerImpl::Init() {
   return true;
 }
 
-common_types::Result FileManagerImpl::ReadDataBlock(common_types::DataContainer& data_block) {
+common::Result FileManagerImpl::ReadDataBlock(common::DataContainer& data_block) {
   std::lock_guard<std::mutex> local_lock(read_file_mutex_);
   try {
     if (already_read_size_ == file_size_) {
-      return common_types::Result::ERROR;
+      return common::Result::ERROR;
     }
 
     data_block.id = ++data_block_id_;
@@ -60,17 +60,17 @@ common_types::Result FileManagerImpl::ReadDataBlock(common_types::DataContainer&
       input_stream_.read(&(data_block.data[0]), static_cast<long>(remined_size));
       std::cout << "Block count: " << data_block_id_ << std::endl;
       already_read_size_ += static_cast<std::size_t>(input_stream_.gcount());
-      return common_types::Result::END_OF_FILE;
+      return common::Result::END_OF_FILE;
     }
 
     input_stream_.read(&(data_block.data[0]), static_cast<long>(data_block.data.size()));
 
     already_read_size_ += static_cast<std::size_t>(input_stream_.gcount());
-    return common_types::Result::DATA_IS_READ;
+    return common::Result::DATA_IS_READ;
   } catch (std::exception e) {
     std::cerr << "Reading file is failed!\n" << std::endl;
     std::cerr << e.what();
-    return common_types::Result::ERROR;
+    return common::Result::ERROR;
   }
 }
 

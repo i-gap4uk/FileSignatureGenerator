@@ -1,4 +1,11 @@
 # Prerequisites
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+.cmake/*
+
 *.d
 
 # Compiled Object files
@@ -30,3 +37,5 @@
 *.exe
 *.out
 *.app
+
+.idea/*

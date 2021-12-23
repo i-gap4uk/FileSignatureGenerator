@@ -5,7 +5,7 @@
 #include <mutex>
 
 #include "include/interfaces/file_manager.h"
-#include "utils/include/common_types.h"
+#include "utils/include/common.h"
 
 namespace file_manager {
 /**
@@ -27,12 +27,12 @@ class FileManagerImpl : public FileManager {
    * @brief Reads data from a file by data block size.
    * @param data_block A data block that will be filled by data.
    * @return Result code as the result of operation.
-   * common_types::Result::DATA_IS_READ - another data block has been read.
-   * successfully. common_types::Result::ERROR - in the case when the end of file is
+   * common::Result::DATA_IS_READ - another data block has been read.
+   * successfully. common::Result::ERROR - in the case when the end of file is
    * reached and was a try to read a data
-   * common_types::Result::END_OF_FILE - the end of file has been reached.
+   * common::Result::END_OF_FILE - the end of file has been reached.
    */
-  common_types::Result ReadDataBlock(common_types::DataContainer& data_block) override;
+  common::Result ReadDataBlock(common::DataContainer& data_block) override;
 
   bool WriteHashToFile(const std::string& hash_string) override;
 

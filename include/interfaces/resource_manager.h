@@ -6,8 +6,8 @@
 
 namespace resource_manager {
 
-using DataContainer = common_types::DataContainer;
-using HashContainer = common_types::HashContainer;
+using DataContainer = common::DataContainer;
+using HashContainer = common::HashContainer;
 
 class ResourceManager : public data_resource_manager::IDataResourceManager,
                         public hash_resource_manager::IHashResourceManager {

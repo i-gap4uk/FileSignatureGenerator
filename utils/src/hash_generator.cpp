@@ -6,7 +6,7 @@
 
 #include <openssl/evp.h>
 
-#include "utils/include/common_types.h"
+#include "utils/include/common.h"
 
 namespace hash_generator {
 
@@ -29,10 +29,9 @@ void hex_format(const Byte* hash_value, const std::size_t hash_size, std::string
   out_hash_string = sstream.str();
 }
 
-HashGenerator::HashGenerator() : hash_id_(common_types::HashContainer::kInvalidId) {}
+HashGenerator::HashGenerator() : hash_id_(common::HashContainer::kInvalidId) {}
 
-bool HashGenerator::GenerateHash(const Data& data,
-                                 common_types::HashContainer& out_hash_container) {
+bool HashGenerator::GenerateHash(const Data& data, common::HashContainer& out_hash_container) {
   EVP_MD_CTX mctx;
   MD5Buffer md5_buffer(EVP_MAX_IV_LENGTH);
   EVP_MD_CTX_init(&mctx);

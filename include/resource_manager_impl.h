@@ -4,7 +4,7 @@
 #include <mutex>
 
 #include "include/interfaces/resource_manager.h"
-#include "utils/include/common_types.h"
+#include "utils/include/common.h"
 
 namespace resource_manager {
 class ResourceManagerImpl : public ResourceManager {
@@ -23,8 +23,8 @@ class ResourceManagerImpl : public ResourceManager {
   std::size_t GetLastHashId() const override;
 
  private:
-  common_types::DataQueue data_queue_;
-  common_types::HashQueue hash_queue_;
+  common::DataQueue data_queue_;
+  common::HashQueue hash_queue_;
   std::size_t last_data_block_id_;
   std::size_t last_hash_id_;
 

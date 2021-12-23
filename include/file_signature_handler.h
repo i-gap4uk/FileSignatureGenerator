@@ -9,8 +9,7 @@
 
 #include "include/interfaces/file_manager.h"
 #include "include/interfaces/resource_manager.h"
-#include "utils/include/common_types.h"
-#include "utils/include/constants.h"
+#include "utils/include/common.h"
 #include "utils/include/hash_generator.h"
 
 namespace file_signature_handler {
@@ -22,25 +21,18 @@ namespace file_signature_handler {
 class FileSignatureHandler {
  public:
   /**
-   * @param data_file_path File path that's signature should be generated.
-   * @param file_signature_path Path of the file that will contain the data
-   * file signature. In the case when the parameter is omitted will be created
-   * a file by default path.
-   * @param block_size Size of the block by which data file will be split. In
-   * the case when the parameter is omitted used default value.
-   * @param threads_count Threads count which will be initialized and run.
+   * @param init_params Initializing parameters
    */
-  FileSignatureHandler(const std::string& data_file_path, const std::string& file_signature_path,
-                       const std::size_t block_size, const std::size_t threads_count);
+  FileSignatureHandler(const common::InitializeParameters& init_params);
 
   /**
    * @brief Generates signature data file.
    * @return Signature generating result.
-   * common_types::Result::ERROR - signature generating is failed.
-   * common_types::Result::SIGN_IS_GENERATED - signature generating is completed
+   * common::Result::ERROR - signature generating is failed.
+   * common::Result::SIGN_IS_GENERATED - signature generating is completed
    * successfully.
    */
-  common_types::Result GenerateFileSignature();
+  common::Result GenerateFileSignature();
 
   /**
    * @brief Initializes FileSignatureHandler class instance. Should be called
@@ -60,7 +52,7 @@ class FileSignatureHandler {
   void GenerateHash();
   void WriteHash();
 
-  common_types::Result ReadDataBlock(resource_manager::DataContainer& data_container);
+  common::Result ReadDataBlock(resource_manager::DataContainer& data_container);
   void PutDataBlock(const resource_manager::DataContainer& data_container);
   void WaitAvailableDataBlock();
   bool GetDataBlock(resource_manager::DataContainer& data_container);
@@ -68,7 +60,8 @@ class FileSignatureHandler {
   void WaitAvailableHash();
   bool GetHash(resource_manager::HashContainer& hash_container);
 
-  std::size_t block_size_;
+  const std::size_t block_size_;
+
   std::shared_ptr<file_manager::FileManager> file_manager_;
   std::shared_ptr<resource_manager::ResourceManager> resource_manager_;
   hash_generator::HashGenerator hash_generator_;

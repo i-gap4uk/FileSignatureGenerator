@@ -1,7 +1,7 @@
 #ifndef INCLUDE_INTERFACES_DATA_RESOURCE_MANAGER_H
 #define INCLUDE_INTERFACES_DATA_RESOURCE_MANAGER_H
 
-#include "utils/include/common_types.h"
+#include "utils/include/common.h"
 
 namespace data_resource_manager {
 /**
@@ -13,7 +13,7 @@ class IDataResourceManager {
    * @brief Inserts data block into the internal data storage.
    * @param data_block Data block that should be kept.
    */
-  virtual void InsertDataBlock(const common_types::DataContainer& data_block) = 0;
+  virtual void InsertDataBlock(const common::DataContainer& data_block) = 0;
 
   /**
    * @brief Checks is the internal data storage empty.
@@ -29,7 +29,7 @@ class IDataResourceManager {
    * @return TRUE if data container has been filled by data
    * successfully, otherwise FALSE.
    */
-  virtual bool GetDataBlock(common_types::DataContainer& out_data_block) = 0;
+  virtual bool GetDataBlock(common::DataContainer& out_data_block) = 0;
 
   /**
    * @brief Gets the last data block ID.

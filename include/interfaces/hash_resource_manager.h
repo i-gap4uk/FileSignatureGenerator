@@ -1,7 +1,7 @@
 #ifndef INCLUDE_INTERFACES_HASH_RESOURCE_MANAGER_H
 #define INCLUDE_INTERFACES_HASH_RESOURCE_MANAGER_H
 
-#include "utils/include/common_types.h"
+#include "utils/include/common.h"
 
 namespace hash_resource_manager {
 /**
@@ -13,7 +13,7 @@ class IHashResourceManager {
    * @brief Inserts hash into the internal hash storage.
    * @param hash Hash that should be kept.
    */
-  virtual void InsertHash(const common_types::HashContainer& hash) = 0;
+  virtual void InsertHash(const common::HashContainer& hash) = 0;
 
   /**
    * @brief Checks is the internal hash storage empty.
@@ -29,7 +29,7 @@ class IHashResourceManager {
    * @return TRUE if hash container has been filled by hash
    * successfully, otherwise FALSE.
    */
-  virtual bool GetHash(common_types::HashContainer& out_hash_container) = 0;
+  virtual bool GetHash(common::HashContainer& out_hash_container) = 0;
 
   /**
    * @brief Gets the last hash ID.

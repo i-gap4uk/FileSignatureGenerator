@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "utils/include/common_types.h"
+#include "utils/include/common.h"
 
 namespace hash_generator {
 
@@ -28,7 +28,7 @@ class HashGenerator {
    * hash.
    * @return TRUE if hash generating completed successfully, otherwise FALSE.
    */
-  bool GenerateHash(const Data& data, common_types::HashContainer& out_hash_container);
+  bool GenerateHash(const Data& data, common::HashContainer& out_hash_container);
 
  private:
   std::size_t hash_id_;

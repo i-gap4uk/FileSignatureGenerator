@@ -1,13 +1,15 @@
-#ifndef INCLUDE_UTILS_TYPES_H
-#define INCLUDE_UTILS_TYPES_H
+#ifndef COMMON
+#define COMMON
 
+#include <iostream>
 #include <limits>
 #include <set>
 #include <string>
 #include <vector>
 
-namespace common_types {
+#include "constants.h"
 
+namespace common {
 /**
  * @brief DataContainer keeps data and his own identifier.
  */
@@ -24,7 +26,7 @@ struct DataContainer {
   std::size_t id;
 };
 
-using DataQueue = std::set<common_types::DataContainer>;
+using DataQueue = std::set<DataContainer>;
 
 /**
  * Structure HashContainer keeps hash and his own identifier.
@@ -42,7 +44,7 @@ struct HashContainer {
   std::size_t id;
 };
 
-using HashQueue = std::set<common_types::HashContainer>;
+using HashQueue = std::set<HashContainer>;
 
 enum Result {
   INVALID_ENUM = -1,
@@ -55,6 +57,16 @@ enum Result {
   ERROR
 };
 
-}  // namespace common_types
+struct InitializeParameters {
+  static constexpr std::size_t kInvalidSize = std::numeric_limits<std::size_t>::max();
 
-#endif  // INCLUDE_UTILS_TYPES_H
+  std::string source_file_path;
+  std::string signature_file_path;
+  std::size_t block_size{kInvalidSize};
+};
+
+InitializeParameters ParseCommandLineArguments(int args, const char* argv[]);
+
+}  // namespace common
+
+#endif  // COMMON
